@@ -4,8 +4,10 @@
 #
 server.name: kibana
 server.host: 0.0.0.0
-elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+elasticsearch.hosts: [ "http://qa.elasticsearch:9200" ]
 monitoring.ui.container.elasticsearch.enabled: true
+server:
+  publicBaseUrl: https://logs.powerfulyang.com
 
 ## X-Pack security credentials
 #

@@ -10,6 +10,7 @@ services:
   # subsequent runs, the service simply returns immediately, without performing
   # any modification to existing users.
   setup:
+    container_name: elk.setup
     build:
       context: setup/
       args:
@@ -22,9 +23,10 @@ services:
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     networks:
-      - elk
+      - default
 
   elasticsearch:
+    container_name: qa.elasticsearch
     build:
       context: elasticsearch/
       args:
@@ -45,9 +47,11 @@ services:
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
     networks:
-      - elk
+      - default
+      - public
 
   logstash:
+    container_name: qa.logstash
     build:
       context: logstash/
       args:
@@ -60,15 +64,18 @@ services:
       - "5000:5000/tcp"
       - "5000:5000/udp"
       - "9600:9600"
+      - "12201:12201/udp"
     environment:
       LS_JAVA_OPTS: -Xmx256m -Xms256m
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     networks:
-      - elk
+      - default
+      - public
     depends_on:
       - elasticsearch
 
   kibana:
+    container_name: qa.kibana
     build:
       context: kibana/
       args:
@@ -80,13 +87,16 @@ services:
     environment:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     networks:
-      - elk
+      - default
+      - public
     depends_on:
       - elasticsearch
 
 networks:
-  elk:
-    driver: bridge
+  default:
+    internal: true
+  public:
+    internal: false
 
 volumes:
   setup:
